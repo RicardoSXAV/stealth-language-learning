@@ -10,15 +10,22 @@ import OriginalSentence from "../../components/OriginalSentence";
 import ExerciseSentence from "../../components/ExerciseSentece";
 import OptionsList from "../../components/OptionsList";
 import { useModal } from "../../contexts/ModalContext";
+import { defaultList } from "../../../../data/exercises";
 
 export default function ExerciseView() {
-  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [exercises, setExercises] = useState<Exercise[]>(defaultList);
   const [currentExercise, setCurrentExercise] = useState(0);
   const [selectedWord, setSelectedWord] = useState<string>("");
 
   const { viewModal, modal } = useModal();
 
   const goToNextExercise = () => {
+    if (currentExercise + 1 === exercises.length) {
+      setCurrentExercise(0);
+      setSelectedWord("");
+      return;
+    }
+
     setCurrentExercise((prev) => prev + 1);
     setSelectedWord("");
   };
@@ -38,49 +45,14 @@ export default function ExerciseView() {
   useEffect(() => {
     (async () => {
       const result = await getExercises();
-      setExercises(result);
+
+      if (result.length > 0) {
+        setExercises(result);
+      }
     })();
   }, []);
 
-  const defaultList = [
-    {
-      sentence: "The house is small.",
-      translatedSentence: "Das Hause ist klein.",
-      missingWord: "Hause",
-      originalWord: "house",
-      wrongOptions: ["folgen", "Schaf", "Bereiden"],
-    },
-    {
-      sentence: "The dog is funny.",
-      translatedSentence: "Der Hund ist lustig.",
-      missingWord: "lustig",
-      originalWord: "funny",
-      wrongOptions: ["folgen", "Schaf", "Bereiden"],
-    },
-    {
-      sentence: "She eat an apple.",
-      translatedSentence: "Sie isst einen Apfel.",
-      missingWord: "isst",
-      originalWord: "eat",
-      wrongOptions: ["folgen", "Schaf", "Bereiden"],
-    },
-    {
-      sentence: "They walk slowly.",
-      translatedSentence: "Sie gehen langsam.",
-      missingWord: "langsam",
-      originalWord: "slowly",
-      wrongOptions: ["folgen", "Schaf", "Bereiden"],
-    },
-    {
-      sentence: "Today is your birthday.",
-      translatedSentence: "Heute ist dein Geburtstag.",
-      missingWord: "Heute",
-      originalWord: "Today",
-      wrongOptions: ["folgen", "Schaf", "Bereiden"],
-    },
-  ];
-
-  const exercise = exercises[currentExercise] || defaultList[currentExercise];
+  const exercise = exercises[currentExercise];
 
   return (
     <View style={styles.globalContainer}>
